@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>hdf5gateway</name>
+	<comment>
+		HDF5gateway simplifies reading and writing
+		HDF5 files from IgorPro.
+	</comment>
+	<projects>
+	</projects>
+	<buildSpec/>
+	<natures>
+		<nature>org.python.pydev.pythonNature</nature>
+		<nature>org.eclipse.wst.common.project.facet.core.nature</nature>
+	</natures>
+</projectDescription>
