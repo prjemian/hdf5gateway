@@ -113,8 +113,11 @@
 //	
 //		**Example**
 //		
-//		Consider the HDF5 file with datasets stored in this structure::
-//		
+//		Consider the HDF5 file with datasets stored in this structure:
+//	
+//		.. code-block:: guess
+//			:linenos:
+//			
 //			/
 //			  /sasentry01
 //			    /sasdata01
@@ -248,12 +251,15 @@
 //	----------------------------------------------------------------------------------------
 //	
 //	Attributes are represented in IgorPro wave notes using a
-//	list of *key,value* pairs.  For example::
+//	list of *key,value* pairs.  For example:
 //	
-//		NX_class=SASdata
-//		Q_indices=0,1
-//		I_axes=Q,Q
-//		Mask_indices=0,1
+//		.. code-block:: guess
+//			:linenos:
+//	
+//			NX_class=SASdata
+//			Q_indices=0,1
+//			I_axes=Q,Q
+//			Mask_indices=0,1
 //	
 //	It is important to know the delimiters used by this string to 
 //	differentiate various attributes, some of which may have a 
@@ -280,49 +286,52 @@
 //	Export data from IgorPro
 //	-------------------------------------------------------
 //	
-//	To write a simple dataset :math:`I(Q)`, one might write this IgorPro code::
+//	To write a simple dataset :math:`I(Q)`, one might write this IgorPro code:
 //	
-//		// create the folder structure
-//		NewDataFolder/O/S root:mydata
-//		NewDataFolder/O sasentry
-//		NewDataFolder/O :sasentry:sasdata
+//		.. code-block:: guess
+//			:linenos:
+//			
+//			// create the folder structure
+//			NewDataFolder/O/S root:mydata
+//			NewDataFolder/O sasentry
+//			NewDataFolder/O :sasentry:sasdata
 //	
-//		// create the waves
-//		Make :sasentry:sasdata:I0
-//		Make :sasentry:sasdata:Q0
+//			// create the waves
+//			Make :sasentry:sasdata:I0
+//			Make :sasentry:sasdata:Q0
 //	
-//		Make/N=0 Igor___folder_attributes
-//		Make/N=0 :sasentry:Igor___folder_attributes
-//		Make/N=0 :sasentry:sasdata:Igor___folder_attributes
+//			Make/N=0 Igor___folder_attributes
+//			Make/N=0 :sasentry:Igor___folder_attributes
+//			Make/N=0 :sasentry:sasdata:Igor___folder_attributes
 //	
-//		// create the attributes
-//		Note/K Igor___folder_attributes, "producer=IgorPro\rNX_class=NXroot"
-//		Note/K :sasentry:Igor___folder_attributes, "NX_class=NXentry"
-//		Note/K :sasentry:sasdata:Igor___folder_attributes, "NX_class=NXdata"
-//		Note/K :sasentry:sasdata:I0, "units=1/cm\rsignal=1\rtitle=reduced intensity"
-//		Note/K :sasentry:sasdata:Q0, "units=1/A\rtitle=|scattering vector|"
+//			// create the attributes
+//			Note/K Igor___folder_attributes, "producer=IgorPro\rNX_class=NXroot"
+//			Note/K :sasentry:Igor___folder_attributes, "NX_class=NXentry"
+//			Note/K :sasentry:sasdata:Igor___folder_attributes, "NX_class=NXdata"
+//			Note/K :sasentry:sasdata:I0, "units=1/cm\rsignal=1\rtitle=reduced intensity"
+//			Note/K :sasentry:sasdata:Q0, "units=1/A\rtitle=|scattering vector|"
 //	
-//		// create the cross-reference mapping
-//		Make/T/N=(5,2) HDF5___xref
-//		Edit/K=0 'HDF5___xref';DelayUpdate
-//		HDF5___xref[0][1] = ":"
-//		HDF5___xref[1][1] = ":sasentry"
-//		HDF5___xref[2][1] = ":sasentry:sasdata"
-//		HDF5___xref[3][1] = ":sasentry:sasdata:I0"
-//		HDF5___xref[4][1] = ":sasentry:sasdata:Q0"
-//		HDF5___xref[0][0] = "/"
-//		HDF5___xref[1][0] = "/sasentry"
-//		HDF5___xref[2][0] = "/sasentry/sasdata"
-//		HDF5___xref[3][0] = "/sasentry/sasdata:I"
-//		HDF5___xref[4][0] = "/sasentry/sasdata:Q"
+//			// create the cross-reference mapping
+//			Make/T/N=(5,2) HDF5___xref
+//			Edit/K=0 'HDF5___xref';DelayUpdate
+//			HDF5___xref[0][1] = ":"
+//			HDF5___xref[1][1] = ":sasentry"
+//			HDF5___xref[2][1] = ":sasentry:sasdata"
+//			HDF5___xref[3][1] = ":sasentry:sasdata:I0"
+//			HDF5___xref[4][1] = ":sasentry:sasdata:Q0"
+//			HDF5___xref[0][0] = "/"
+//			HDF5___xref[1][0] = "/sasentry"
+//			HDF5___xref[2][0] = "/sasentry/sasdata"
+//			HDF5___xref[3][0] = "/sasentry/sasdata:I"
+//			HDF5___xref[4][0] = "/sasentry/sasdata:Q"
 //	
-//		// Check our work so far.
-//		// If something prints, there was an error above.
-//		print H5GW_ValidateFolder("root:mydata")
+//			// Check our work so far.
+//			// If something prints, there was an error above.
+//			print H5GW_ValidateFolder("root:mydata")
 //	
-//		// set I0 and Q0 to your data
+//			// set I0 and Q0 to your data
 //		
-//		print H5GW_WriteHDF5("root:mydata", "mydata.h5")
+//			print H5GW_WriteHDF5("root:mydata", "mydata.h5")
 //	
 //	.. index:: read
 //	
@@ -331,10 +340,13 @@
 //	
 //	.. index:: example
 //	
-//	This is a simple operation, reading the file from the previous example into a new folder::
+//	This is a simple operation, reading the file from the previous example into a new folder:
 //	
-//		NewDataFolder/O/S root:newdata
-//		H5GW_ReadHDF5("", "mydata.h5")	// reads into current folder
+//		.. code-block:: guess
+//			:linenos:
+//			
+//			NewDataFolder/O/S root:newdata
+//			H5GW_ReadHDF5("", "mydata.h5")	// reads into current folder
 //@-
 
 //  //  //  //  //  //  //  //  //  //  //  //  //  //  //  //  //  //  //  //  //  //  //  //  //  //  //  //  //  //
@@ -1209,14 +1221,17 @@ End
 //	Testing and Development
 //	======================================
 //	
-//	Examples to test read and write::
+//	Examples to test read and write:
 //	
-//		print H5GW_ReadHDF5("root:worker", "simpleexamplefile.h5")
-//		print H5GW_ReadHDF5("root:worker", "simple2dcase.h5")
-//		print H5GW_ReadHDF5("root:worker", "simple2dmaskedcase.h5")
-//		print H5GW_ReadHDF5("root:worker", "generic2dqtimeseries.h5")
-//		print H5GW_ReadHDF5("root:worker", "generic2dtimetpseries.h5")
-//		print H5GW_WriteHDF5("root:worker:simpleexamplefile", "test_output.h5")
+//		.. code-block:: guess
+//			:linenos:
+//			
+//			print H5GW_ReadHDF5("root:worker", "simpleexamplefile.h5")
+//			print H5GW_ReadHDF5("root:worker", "simple2dcase.h5")
+//			print H5GW_ReadHDF5("root:worker", "simple2dmaskedcase.h5")
+//			print H5GW_ReadHDF5("root:worker", "generic2dqtimeseries.h5")
+//			print H5GW_ReadHDF5("root:worker", "generic2dtimetpseries.h5")
+//			print H5GW_WriteHDF5("root:worker:simpleexamplefile", "test_output.h5")
 //	
 //	.. index:: test
 //	.. index:: ! H5GW__TestFile()
