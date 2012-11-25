@@ -3,10 +3,15 @@
 #include <HDF5 Browser>
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// .. the documentation is written in restructured text for use by Sphinx.
-//    A python program will read this file and grab all the text between lines
-//    beginning with "//@+" and "//@-" that begin with "//\t" and use them for the Sphinx documentation.
-//    The tables here have been adjusted for a fixed width font.  Don't "fix" them in Igor!
+// $Id$
+// This file is part of a project hosted at the Advanced Photon Source.
+// Access all the source files and data files by checking out the project here:
+//   svn co https://subversion.xray.aps.anl.gov/small_angle/hdf5gateway/trunk hdf5gateway
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// The documentation is written in restructured text for use by Sphinx.
+// A python program will read this file and grab all the text between lines
+// beginning with "//@+" and "//@-" that begin with "//\t" and use them for the Sphinx documentation.
+// The tables here have been adjusted for a fixed width font.  Don't "fix" them in Igor!
 
 //@+
 //	============================================================

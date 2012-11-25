@@ -1,12 +1,17 @@
-.. $Id: $
+.. $Id$
 
 ============================================================
 Administrative Matters
 ============================================================
 
+Author
+====================================
+
 :Author:
 	Pete R. Jemian
 	jemian@anl.gov
+
+.. index:: documentation; pdf, documentation; html
 
 Documentation
 ====================================
@@ -19,11 +24,16 @@ Documentation
 	not yet available online but soon
 
 
+.. index:: subversion; source code
 
 Downloads
 ====================================
 
-subversion checkout::
+**IgorExchange** ::
+
+	--tba--
+
+**subversion checkout** ::
 	
 	svn co https://subversion.xray.aps.anl.gov/small_angle/hdf5gateway/trunk hdf5gateway
 
@@ -31,6 +41,7 @@ subversion checkout::
 .. include:: CHANGES
 
 
+.. index:: documentation; building
 
 Building the documentation
 ====================================
@@ -56,4 +67,11 @@ Required:
 
 	make latexpdf
 
-#. copy the PDF file to ZZZZZZZZZZZZZ
+#. copy the HTML directory to the publishing space
+
+	--tba--
+
+#. copy the PDF file to the publishing space
+
+	--tba--
+

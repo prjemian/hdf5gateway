@@ -1,4 +1,4 @@
-.. $Id:$
+.. $Id$
 
 HDF5gateway for IgorPro
 =======================================
@@ -16,7 +16,3 @@ Contents:
    
    hdf5gateway
    admin
-
-:Author:
-	Pete R. Jemian
-	jemian@anl.gov
