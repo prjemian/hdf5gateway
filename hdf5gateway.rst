@@ -1,3 +1,5 @@
+.. DO NOT EDIT!  This file is automatically built by extractor.py.
+
 ============================================================
 HDF5gateway: HDF5 File I/O Support
 ============================================================

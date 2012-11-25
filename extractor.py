@@ -1,3 +1,13 @@
+#!/usr/bin/env python
+
+########### SVN repository information ###################
+# $Date$
+# $Author$
+# $Revision$
+# $URL$
+# $Id$
+########### SVN repository information ###################
+
 '''
 extract rest documentation from IgorPro procedure file
 
@@ -35,11 +45,12 @@ def extractor(procedurefile, rstfile):
         return False
     showlines = False
     t = []
+    t.append('.. DO NOT EDIT!  This file is automatically built by extractor.py.')
     for line in open(procedurefile).readlines():
         if len(line) > 3 and line[0:4] in DOCUMENTATION_TRIGGERS:
             showlines = line[3] == '+'
-            if showlines and len(t) > 0:
-                t.append('') 
+            if showlines:
+                t.append('')
         else:
             if showlines and line.startswith(DOC_PREFIX):
                 s = line.rstrip()
