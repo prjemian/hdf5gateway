@@ -17,12 +17,12 @@ Documentation
 ====================================
 
 :html:
-	not yet available online but soon
+	http://subversion.xray.aps.anl.gov/admin_small_angle/HDF5gateway
 
 
 :pdf:
 	:download:`HDF5gateway.pdf`
-	(http://subversion.xray.aps.anl.gov/small_angle/hdf5gateway/trunk/HDF5gateway.pdf)
+	(http://subversion.xray.aps.anl.gov/admin_small_angle/HDF5gateway/HDF5gateway.pdf)
 
 
 .. index:: subversion; source code
@@ -30,9 +30,15 @@ Documentation
 Downloads
 ====================================
 
+.. index:: IgorExchange
+
 **IgorExchange** ::
 
 	--tba--
+
+Just the IgorPro procedure file (text):
+	http://subversion.xray.aps.anl.gov/admin_small_angle/HDF5gateway/HDF5gateway.ipf
+
 
 **subversion checkout** ::
 	
