@@ -272,7 +272,7 @@ Examples
 Export data from IgorPro
 -------------------------------------------------------
 
-To write a simple dataset :math:`I(Q)`, one might write this IgorPro code:
+To write a simple dataset *I(Q)*, one might write this IgorPro code:
 
 	.. code-block:: guess
 		:linenos:
@@ -409,6 +409,9 @@ HDF5 examples
 
 Private (static) Functions
 ======================================
+
+Documentation of some, but not all, private functions is provided.
+
 
 .. index:: ! H5GW__OpenHDF5_RW()
 

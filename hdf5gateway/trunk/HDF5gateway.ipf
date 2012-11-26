@@ -286,7 +286,7 @@
 //	Export data from IgorPro
 //	-------------------------------------------------------
 //	
-//	To write a simple dataset :math:`I(Q)`, one might write this IgorPro code:
+//	To write a simple dataset *I(Q)*, one might write this IgorPro code:
 //	
 //		.. code-block:: guess
 //			:linenos:
@@ -599,6 +599,9 @@ End
 //	
 //	Private (static) Functions
 //	======================================
+//	
+//	Documentation of some, but not all, private functions is provided.
+//	
 //@-
 
 

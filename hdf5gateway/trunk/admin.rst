@@ -21,7 +21,8 @@ Documentation
 
 
 :pdf:
-	not yet available online but soon
+	:download:`HDF5gateway.pdf`
+	(http://subversion.xray.aps.anl.gov/small_angle/hdf5gateway/trunk/HDF5gateway.pdf)
 
 
 .. index:: subversion; source code
@@ -50,6 +51,8 @@ The documentation for *HDF5gateway* is built from .rst files and from content in
 the *hdf5gateway.ipf* IgorPro procedure file by a Python script called *extractor.py*, 
 located in the same directory.
 
+The current documentation was built: |today|.
+
 Required:
 
 * Python
@@ -67,11 +70,12 @@ Required:
 
 	make latexpdf
 
-#. copy the HTML directory to the publishing space
+#. copy the PDF file to the source directory and rebuild the HTML::
 
-	--tba--
+	cp _build/latex/HDF5gateway.pdf ./
+	python extractor.py
 
-#. copy the PDF file to the publishing space
+#. copy the rebuilt HTML directory to the publishing space
 
 	--tba--
 
