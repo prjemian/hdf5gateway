@@ -20,6 +20,8 @@
 //	HDF5gateway: HDF5 File I/O Support
 //	============================================================
 //	
+//	Version: 1.0
+//	
 //	HDF5gateway makes it easy to read 
 //	a HDF5 file into an IgorPro folder,
 //	including group and dataset attributes,
