@@ -85,3 +85,10 @@ Required:
 
 	--tba--
 
+License
+====================================
+
+Copyright (c) 2012 University of Chicago. All rights reserved.
+See the LICENSE file for details.
+
+:download:`LICENSE`
