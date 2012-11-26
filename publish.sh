@@ -10,41 +10,31 @@
 
 # Use this script to (re)publish the documentation
 
-# TODO: this needs to be fixed!!!
-
-/bin/does.not.exist.so.will.stop.here.with.an.error
-
+export PATH=/APSshare/epd/rh5-x86/bin:$PATH
 export PROJECT="HDF5gateway"
-export SOURCE_DIR="build"
-export TARGET_DIR="/home/joule/SVN/subversion/smang/ "
-export MAKE_TARGET="all"
-export MAKE_DIR="doc"
+export TARGET_DIR=/home/joule/SVN/subversion/small_angle
+
+#/home/joule/SVN/subversion/small_angle/projects/hdfgateway
 
 echo "Updating from subversion repository"
 svn update
 
-cd $MAKE_DIR
-
 echo "rebuilding the documentation"
 make clean
-make $MAKE_TARGET
 
-cd $SOURCE_DIR
+python extractor.py
+make latexpdf
+cp _build/latex/HDF5gateway.pdf ./
+make html
+
 echo "Removing the old build, if it exists"
-/bin/rm -rf $PROJECT
+/bin/rm -rf $TARGET_DIR/$PROJECT
 
 echo "Copying the rebuilt web site"
+cd _build
 mv html $PROJECT
-tar cf /tmp/ball.tar $PROJECT
-cd $TARGET_DIR
-tar xf /tmp/ball.tar
+tar cf - $PROJECT | (cd $TARGET_DIR && tar xf -)
+/bin/rm -rf $PROJECT
+cd ..
+
 echo "Done publishing $PROJECT"
-
-
-#basic scheme::
-#
-#	python extractor.py
-#	make latexpdf
-#	cp _build/latex/HDF5gateway.pdf ./
-#	make html
-#	# copy the _build/html directory to the publishing point
