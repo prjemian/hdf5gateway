@@ -584,6 +584,7 @@ Function H5GW_TestSuite()
 	name_list = name_list +listSep + "simple2dmaskedcase"
 	name_list = name_list +listSep + "generic2dqtimeseries"
 	name_list = name_list +listSep + "generic2dtimetpseries"
+	name_list = name_list +listSep + "NXtest"
 
 	Variable length = itemsInList(name_list, listSep), ii
 	String name, newName, newerName

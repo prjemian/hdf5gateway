@@ -47,6 +47,8 @@ Just the most recent IgorPro procedure file (text) from the development trunk:
 
 .. include:: CHANGES
 
+.. include:: KNOWN_PROBLEMS
+
 
 .. index:: documentation; building
 

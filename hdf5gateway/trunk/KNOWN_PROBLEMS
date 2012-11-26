@@ -1,0 +1,22 @@
+.. $Id$
+
+.. index:: ! problems
+
+.. _known problems:
+
+Known Problems
+==================
+
+* :index:`HDF5 links` are not handled properly.
+
+  Additional code will be necessary to identify linked items
+  and structures will be needed to establish/preserve this
+  information within IgorPro.  Notably, linked datasets
+  will be replicated while linked groups will be empty on
+  reading into IgorPro.  How external file links are handled
+  is not known at this time but likely, datasets will be 
+  replicated, groups will not, and the association with the
+  external file willl not be preserved.  The HDF5 XOP has 
+  capabilities to write all these structures so it is likely
+  to provide a scheme to write links, once a scheme is devised
+  to describe this within IgorPro.
