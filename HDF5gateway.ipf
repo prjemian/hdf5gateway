@@ -2,6 +2,8 @@
 
 #include <HDF5 Browser>
 
+// requires the Wavemetrics "HDF5.xop" to be installed for IgorPro
+
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // $Id$
 // This file is part of a project hosted at the Advanced Photon Source.
