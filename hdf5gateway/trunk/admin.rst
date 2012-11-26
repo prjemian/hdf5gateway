@@ -34,10 +34,10 @@ Downloads
 
 **IgorExchange** ::
 
-	--tba--
+	http://www.igorexchange.com/project/HDF5gateway
 
-Just the IgorPro procedure file (text):
-	http://subversion.xray.aps.anl.gov/admin_small_angle/HDF5gateway/HDF5gateway.ipf
+Just the most recent IgorPro procedure file (text) from the development trunk:
+	http://subversion.xray.aps.anl.gov/small_angle/hdf5gateway/trunk/HDF5gateway.ipf
 
 
 **subversion checkout** ::
