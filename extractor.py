@@ -12,6 +12,8 @@
 extract rest documentation from IgorPro procedure file
 
 Lines to be extracted will be marked similar to this example::
+    
+    //@+
     // PRJ_TestFile(parentDir, sourceFile)
     // -------------------------------------------------------------------------------------------------------------
     //
