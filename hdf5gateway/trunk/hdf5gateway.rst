@@ -4,8 +4,11 @@
 HDF5gateway: HDF5 File I/O Support
 ============================================================
 
-The IgorPro functions in this file provide support to read and write certain
-HDF5 data files including attributes.
+HDF5gateway makes it easy to read
+a HDF5 file into an IgorPro folder,
+including group and dataset attributes,
+such as a NeXus data file,
+modify it, and then write it back out.
 
 .. index:: goal
 
