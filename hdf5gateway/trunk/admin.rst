@@ -17,12 +17,11 @@ Documentation
 ====================================
 
 :html:
-	http://subversion.xray.aps.anl.gov/admin_small_angle/HDF5gateway
+	http://hdf5gateway.readthedocs.org
 
 
 :pdf:
-	:download:`HDF5gateway.pdf`
-	(http://subversion.xray.aps.anl.gov/admin_small_angle/HDF5gateway/HDF5gateway.pdf)
+	http://hdf5gateway.readthedocs.org/en/latest/_downloads/HDF5gateway.pdf
 
 
 .. index:: subversion; source code
