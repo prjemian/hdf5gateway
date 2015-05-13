@@ -11,6 +11,9 @@
 //   svn co https://subversion.xray.aps.anl.gov/small_angle/hdf5gateway/trunk hdf5gateway
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The documentation is written in restructured text for use by Sphinx.
+//
+// :doc: http://hdf5gateway.readthedocs.org/
+//
 // A python program will read this file and grab all the text between lines
 // beginning with "//@+" and "//@-" that begin with "//\t" and use them for the Sphinx documentation.
 // The tables here have been adjusted for a fixed width font.  Don't "fix" them in Igor!
@@ -1007,7 +1010,7 @@ Static Function H5GW__HDF5ReadAttributes(fileID, hdf5Path, baseName)
 	endfor
 	
 	// read and assign dataset attributes
-	HDF5ListGroup/F/R/TYPE=(dataset_attributes_type)  fileID, hdf5Path		//	TYPE=2 reads groups
+	HDF5ListGroup/F/R/TYPE=(dataset_attributes_type)  fileID, hdf5Path		//	TYPE=2 reads datasets
 	String/G dataset_name_list = S_HDF5ListGroup
 
 	// build a table connecting objectPaths with group_name_list and dataset_name_list 
