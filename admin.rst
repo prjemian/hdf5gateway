@@ -24,7 +24,7 @@ Documentation
 	http://hdf5gateway.readthedocs.org/en/latest/_downloads/HDF5gateway.pdf
 
 
-.. index:: subversion; source code
+.. index:: GitHub; subversion; source code
 
 Downloads
 ====================================
@@ -36,12 +36,19 @@ Downloads
 	http://www.igorexchange.com/project/HDF5gateway
 
 Just the most recent IgorPro procedure file (text) from the development trunk:
-	http://subversion.xray.aps.anl.gov/small_angle/hdf5gateway/trunk/HDF5gateway.ipf
+	https://import.github.com/prjemian/hdf5gateway/HDF5gateway.ipf
 
 
-**subversion checkout** ::
+**source code repository** ::
 	
-	svn co https://subversion.xray.aps.anl.gov/small_angle/hdf5gateway/trunk hdf5gateway
+	https://import.github.com/prjemian/hdf5gateway
+
+
+**subversion repository retired 2015-05-14** ::
+	
+	https://subversion.xray.aps.anl.gov/small_angle/hdf5gateway
+
+
 
 
 .. include:: CHANGES
