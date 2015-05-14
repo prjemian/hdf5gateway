@@ -36,12 +36,12 @@ Downloads
 	http://www.igorexchange.com/project/HDF5gateway
 
 Just the most recent IgorPro procedure file (text) from the development trunk:
-	https://import.github.com/prjemian/hdf5gateway/HDF5gateway.ipf
+	https://github.com/prjemian/hdf5gateway/blob/master/HDF5gateway.ipf
 
 
 **source code repository** ::
 	
-	https://import.github.com/prjemian/hdf5gateway
+	https://github.com/prjemian/hdf5gateway
 
 
 **subversion repository retired 2015-05-14** ::
