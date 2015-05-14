@@ -1,13 +1,5 @@
 #!/usr/bin/env python
 
-########### SVN repository information ###################
-# $Date$
-# $Author$
-# $Revision$
-# $URL$
-# $Id$
-########### SVN repository information ###################
-
 '''
 extract rest documentation from IgorPro procedure file
 
