@@ -5,10 +5,9 @@
 // requires the Wavemetrics "HDF5.xop" to be installed for IgorPro
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// $Id$
 // This file is part of a project hosted at the Advanced Photon Source.
 // Access all the source files and data files by checking out the project here:
-//   svn co https://subversion.xray.aps.anl.gov/small_angle/hdf5gateway/trunk hdf5gateway
+//   git clone https://github.com/prjemian/hdf5gateway.git
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The documentation is written in restructured text for use by Sphinx.
 //
