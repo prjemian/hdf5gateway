@@ -89,9 +89,6 @@ Required:
 	cp _build/latex/HDF5gateway.pdf ./
 	python extractor.py
 
-#. copy the rebuilt HTML directory to the publishing space
-
-	--tba--
 
 License
 ====================================
