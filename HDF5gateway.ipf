@@ -422,6 +422,7 @@ Function/T H5GW_ReadHDF5(parentFolder, fileName, [hdf5Path])
 	endif
 	String/G objectPaths = S_objectPaths  // this gives a clue to renamed datasets (see below for attributes)
 	//   read the attributes
+	base_name = possiblyQuoteName(base_name)					//JIL fix, needed to handle liberal names. 
 	H5GW__HDF5ReadAttributes(fileID, hdf5Path, base_name)
 	HDF5CloseFile fileID
 
