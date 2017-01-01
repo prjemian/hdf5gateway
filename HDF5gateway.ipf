@@ -63,9 +63,9 @@
 //	#. The groups and datasets are read and stored into an IgorPro folder.
 //	#. Any attributes of these groups and datasets are read and assigned to IgorPro objects.
 //	
-//	.. index:: home
+//	.. index:: DataPath
 //	
-//	The data file is expected to be in the *home* folder (the folder specified by IgorPro's *home* path),
+//	The data file is expected to be in the DataPath folder (the folder specified by IgorPro path passed as DataPath parameter),
 //	or relative to that folder, or given by an absolute path name.
 //	
 //	.. index:: write, HDF5___xref
@@ -390,8 +390,8 @@
 //		:return String: Status: ""=no error, otherwise, error is described in text
 //@-
 
-Function/T H5GW_ReadHDF5(parentFolder, fileName, [hdf5Path])
-	String parentFolder, fileName, hdf5Path
+Function/T H5GW_ReadHDF5(DataPathStr, parentFolder, fileName, [hdf5Path])
+	String DataPathStr, parentFolder, fileName, hdf5Path
 	if ( ParamIsDefault(hdf5Path) )
 		hdf5Path = "/"
 	endif
@@ -409,7 +409,7 @@ Function/T H5GW_ReadHDF5(parentFolder, fileName, [hdf5Path])
 	endif
 	
 	// do the work here:
-	Variable/G fileID = H5GW__OpenHDF5_RO(fileName)
+	Variable/G fileID = H5GW__OpenHDF5_RO(DataPathStr, fileName)
 	if ( fileID == 0 )
 		return fileName + ": could not open as HDF5 file"
 	endif
@@ -588,15 +588,16 @@ Function H5GW_TestSuite()
 	name_list = name_list +listSep + "generic2dqtimeseries"
 	name_list = name_list +listSep + "generic2dtimetpseries"
 	name_list = name_list +listSep + "NXtest"
+	string DataPathStr="home"
 
 	Variable length = itemsInList(name_list, listSep), ii
 	String name, newName, newerName
 	for (ii = 0; ii < length; ii = ii + 1)
 		name = StringFromList(ii, name_list, listSep) + fileExt
 		// Test reading the HDF5 file and then writing the data to a new HDF5 file
-		newName = H5GW__TestFile(parentDir, name)
+		newName = H5GW__TestFile(DataPathStr, parentDir, name)
 		// Apply the test again on the new HDF5 file
-		newerName = H5GW__TestFile(parentDir, newName)
+		newerName = H5GW__TestFile(DataPathStr, parentDir, newName)
 	endfor
 End
 
@@ -839,7 +840,7 @@ static Function/T H5GW__addPathXref(parentFolder, base_name, hdf5Path, igorPath,
 	String hdf5 = "", path = ""
 	for (ii = 0; ii < length; ii = ii + 1)
 		hdf5 = H5GW__appendPathDelimiter(hdf5, "/") + StringFromList(ii, hdf5Path, "/")
-		path = H5GW__appendPathDelimiter(path, ":") + StringFromList(ii, igorPath, ":")
+		path = H5GW__appendPathDelimiter(path, ":") + PossiblyQuoteName(StringFromList(ii, igorPath, ":"))
 		if ( strlen(StringByKey(hdf5, result, keySep, listSep)) == 0 )
 			result = H5GW__addXref(hdf5, path, result, keySep, listSep)
 		endif
@@ -910,29 +911,25 @@ End
 //@+
 //	.. index:: ! H5GW__OpenHDF5_RO()
 //	
-//	H5GW__OpenHDF5_RO(fileName)
+//	H5GW__OpenHDF5_RO(DataPathStr, fileName)
 //	-------------------------------------------------------------------------------------------------------------
 //	
+//		:String DataPathStr - name of Igor Path where the file resides
 //		:String fileName: name of file (with extension),
 //			either relative to current file system directory
 //			or includes absolute file system path
 //		:returns int: Status: 0 if error, non-zero (fileID) if successful
 //	
-//	   Assumed Parameter:
-//	
-//	    	* *home* (path): Igor path name (defines a file system 
-//			  directory in which to find the data files)
-//			  Note: data is not changed by this function
 //@-
 
-Static Function H5GW__OpenHDF5_RO(fileName)
-	String fileName
-	if ( H5GW__FileExists(fileName) == 0 )
+Static Function H5GW__OpenHDF5_RO(DataPathStr, fileName)
+	String DataPathStr, fileName
+	if ( H5GW__FileExists(DataPathStr, fileName) == 0 )
 		// avoid the open file dialog if the file is not found here
 		return 0
 	endif
 	Variable fileID = 0
-	HDF5OpenFile/R/P=home/Z fileID as fileName
+	HDF5OpenFile/R/P=$(DataPathStr)/Z fileID as fileName
 	if (V_Flag != 0)
 		return 0
 	endif
@@ -992,13 +989,15 @@ Static Function H5GW__HDF5ReadAttributes(fileID, hdf5Path, baseName)
 	String group_name
 	String attr_name_list, attr_name, attribute_str
 	
-	String old_dir = GetDataFolder(1), subdir, group_attr_name
+	String old_dir = GetDataFolder(1), subdir, group_attr_name, tmpStr
 	for (index = 0; index < length; index = index+1)
 		group_name = StringFromList(index, group_name_list)
 		attribute_str = H5GW__HDF5AttributesToString(fileID, group_name, group_attributes_type)
 		if ( strlen(attribute_str) > 0 )
 			// store these attributes in the wavenote of a unique wave in the group
-			subdir = ":" + baseName + ReplaceString("/", group_name, ":")
+			tmpStr = (ReplaceString("/", group_name, ":"))			//should be something like :_Test...etc...
+			tmpStr = H5GW_PossiblyQuoteNXPathinIgor(tmpStr)
+			subdir = ":" + baseName + tmpStr
 			SetDataFolder $subdir
 			group_attr_name = StringFromList((itemsInList(group_name, "/")-1), group_name, "/")
 			group_attr_name = H5GW__SetStringDefault(group_attr_name, "root") + "_attributes"
@@ -1041,6 +1040,25 @@ Static Function H5GW__HDF5ReadAttributes(fileID, hdf5Path, baseName)
 	endfor
 
 End
+//*************************************************************************************************
+//*************************************************************************************************
+static Function/T H5GW_PossiblyQuoteNXPathinIgor(PathIn)
+	string PathIn
+	//possiblyqoutes parts of path if needed.
+	//assume in comes in as :test1:test2:test3
+	
+	string result, tmpStr
+	variable i
+	if(stringmatch(PathIn,":"))
+		return ":"
+	endif
+	result = ""
+	PathIn = PathIn[1,inf]+":"		//remove ":" from front and add it to end, so it is proper Igor list... 
+	For(i=0;i<ItemsInList(PathIn,":");i+=1)
+		result+=":"+PossiblyQuoteName(stringFromList(i,PathIn,":"))
+	endfor
+	return result
+end
 
 // ======================================
 //@+
@@ -1216,10 +1234,10 @@ End
 //		:returns int: 1 if exists, 0 if does not exist
 //@-
 
-Static Function H5GW__FileExists(file_name)
-	String file_name
+Static Function H5GW__FileExists(DataPathStr, file_name)
+	String DataPathStr, file_name
 	Variable fileID
-	Open/R/P=home/Z fileID as file_name	// test if it will open as a regular file
+	Open/R/P=$(DataPathStr)/Z fileID as file_name	// test if it will open as a regular file
 	if ( fileID > 0 )
 		Close fileID
 		return 1
@@ -1262,12 +1280,12 @@ End
 //		:String sourceFile: HDF5 test data file (assumes no file path information prepends the file name)
 //@-
 
-static Function/T H5GW__TestFile(parentDir, sourceFile)
-	String parentDir, sourceFile
+static Function/T H5GW__TestFile(DataPathStr, parentDir, sourceFile)
+	String DataPathStr, parentDir, sourceFile
 	String prefix = "test_"
 	String newFile = prefix + sourceFile
 	String name = StringFromList(0, sourceFile, ".")
-	print H5GW_ReadHDF5(parentDir, sourceFile)
+	print H5GW_ReadHDF5(DataPathStr, parentDir, sourceFile)
 	print H5GW_WriteHDF5(parentDir+":"+name, newFile)
 	return newFile
 End
