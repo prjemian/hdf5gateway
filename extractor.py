@@ -66,7 +66,7 @@ def force_rebuild_all(parent = '_build'):
 
 
 if __name__ == "__main__":
-    extractor('HDF5gateway.ipf', 'hdf5gateway.rst')
+    extractor('HDF5gateway.ipf', 'README.rst')
     force_rebuild_all()
     args = [sys.argv[0]] + "-b html -d _build/doctrees . _build/html".split()
     sphinx.main(args)

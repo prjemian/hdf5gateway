@@ -14,5 +14,5 @@ Contents:
 .. toctree::
    :maxdepth: 2
    
-   hdf5gateway
+   README
    admin
