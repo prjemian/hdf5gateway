@@ -1,14 +1,20 @@
 #pragma rtGlobals=3		// Use modern global access method.
-
-// This is a version of hdf5gateway.ipf revised by Howard Rodstein on 2021-06-02
-// to speed up loading of large files. I started with the hdf5gateway.ipf from
-// https://github.com/prjemian/hdf5gateway on 2021-05-28.
-
+#pragma version=1.04
 #pragma IgorVersion = 7.00	// 7.00 or later is required for StringFromList offset parameter
 
 // In Igor Pro 8 and before, this requires the Wavemetrics "HDF5.xop" to be installed for IgorPro
 
 // #define DO_HDF5_GATEWAY_TIMING		// Define this to turn some timers on for debugging slow performance
+
+
+//1.04 is modfied by Howard Rodstein on 2021-06-02 to speed up loading data. 
+// 		 To speed up loading of large files, we started with the hdf5gateway.ipf from // https://github.com/prjemian/hdf5gateway on 2021-05-28.
+//		 modified by HR and JIL to handle liberal file names, but not liberal data names. That will be separate problem for sometimes in the future. 
+//		 Some Irena nmodifications needed to be re applied (1.02, 1.03)
+//1.03 modified H5GW__make_xref to ship IGORWAVENote which speeds up loading of Irena exprorted data by two order of magnitudes
+//		 modified to import USAXS data as USAXS again. QRS data are all in ImportedData folder, but USAXS is back in USAXS folder.  
+//1.02 modified H5GW__HDF5AttributeDataToString which failed to read list (dQw,dQl) from resolution attribute. 
+//1.01 removed KillWaves/Z which took surprisngly long time. Not needed. 
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This file is part of a project hosted at the Advanced Photon Source.
@@ -366,18 +372,31 @@
 
 //  //  //  //  //  //  //  //  //  //  //  //  //  //  //  //  //  //  //  //  //  //  //  //  //  //  //  //  //  //
 
-static Function/S GetDataFolderPathList(DFREF dfr)
+
+// Return a path possibly quoted for liberal names
+static Function/S PossiblyQuotePath(String pathStr)
+	String sepStr = ":"
+	pathStr+=sepStr
+	Variable i ; String rtnStr=""
+	for (i=0;i<ItemsInList(pathStr,sepStr);i+=1)
+		rtnStr+=PossiblyQuoteName(StringFromList(i,pathStr,sepStr))+sepStr
+	endfor
+	
+	return RemoveEnding(rtnStr,sepStr)
+end
+
+static Function/S GetDataFolderPathList(DFREF dfr)	// Result is quoted if necessary
 	String list = ""
 	
-	String dfPath = GetDataFolder(1, dfr)
+	String dfPath = GetDataFolder(1, dfr)		// dfPath is quoted if necessary
 	
 	Variable numChildDataFolders = CountObjectsDFR(dfr, 4)
 	Variable i
 	for(i=0; i<numChildDataFolders; i+=1)
 		String childDFName = GetIndexedObjNameDFR(dfr, 4, i)
-		list += dfPath + childDFName + ";"
+		list += PossiblyQuotePath(dfPath + childDFName) + ";"
 		DFREF childDFR = dfr:$childDFName
-		String childList = GetDataFolderPathList(childDFR)
+		String childList = GetDataFolderPathList(childDFR)	// Quoted if necessary
 		list += childList
 	endfor
 	
@@ -414,18 +433,19 @@ End
 //@-
 
 Function/T H5GW_ReadHDF5(parentFolder, fileName, [hdf5Path])
-	String parentFolder, fileName, hdf5Path
+	String parentFolder	// If not "", parentFolder must be quoted if necessary
+	String fileName
+	String hdf5Path
 	if ( ParamIsDefault(hdf5Path) )
 		hdf5Path = "/"
 	endif
 
 	String status = ""
-	String oldFolder
-	oldFolder = GetDataFolder(1)
+	String oldFolder = GetDataFolder(1)		// oldFolder is quoted if necessary
 	parentFolder = H5GW__SetStringDefault(parentFolder, oldFolder)
 
 	// First, check that parentFolder exists
-	if ( DataFolderExists(parentFolder) )
+	if ( DataFolderExists(parentFolder) )		// parentFolder is already quoted if necessary
 		SetDataFolder $parentFolder
 	else
 		return parentFolder + " (Igor folder) not found"
@@ -439,14 +459,19 @@ Function/T H5GW_ReadHDF5(parentFolder, fileName, [hdf5Path])
 	
 	//   read the data (too bad that HDF5LoadGroup does not read the attributes)
 	String base_name = StringFromList(0,FileName,".")
+	base_name = StringFromList(ItemsInList(base_name, ":")-1,base_name,":")
+	//this is failing on liberal names, so let's use our own name, this should be used to read one file at time and then delete it anyway...
+	//base_name = "TmpImportNexusFile"
 	HDF5LoadGroup/Z/L=7/O/R/T=$base_name  :, fileID, hdf5Path		//	recursive
 	if ( V_Flag != 0 )
 		SetDataFolder $oldFolder
 		return fileName + ": problem while opening HDF5 file"
 	endif
+	base_name = PossiblyQuoteName(base_name)
+	// S_objectPaths is quoted if necessary
 	String wavePaths = S_objectPaths  // this gives a clue to renamed datasets (see below for attributes)
 	
-	String topDFPath = parentFolder + base_name + ":"
+	String topDFPath = PossiblyQuotePath(parentFolder + ":" + base_name + ":")
 	DFREF topDFR = $topDFPath
 	String dataFolderPaths = topDFPath + ";"				// e.g., "root:SimpleExampleFile:"
 	dataFolderPaths += GetDataFolderPathList(topDFR)	// Add subdata folders created by HDF5LoadGroup
@@ -461,6 +486,7 @@ Function/T H5GW_ReadHDF5(parentFolder, fileName, [hdf5Path])
 	// Print "Datasets:", ItemsInList(dataset_name_list)	// For debugging only
 	String xrefPartialPath
 	sprintf xrefPartialPath, ":%s:HDF5___xref", base_name
+	xrefPartialPath = PossiblyQuotePath(xrefPartialPath)
 	WAVE xref = $xrefPartialPath
 	Note/K xref, "file_name="+fileName
 	Note xref, "file_path="+file_path
@@ -492,21 +518,22 @@ End
 //			or include absolute file system path
 //@-
 Function/T H5GW_WriteHDF5(parentFolder, newFileName, [replace])
-	String parentFolder, newFileName
+	String parentFolder	// If not "", parentFolder must be quoted if necessary
+	String newFileName
 	Variable replace
 	if ( ParamIsDefault(replace) )
 		replace = 1
 	endif
 
 	String status = ""
-	String oldFolder = GetDataFolder(1)
+	String oldFolder = GetDataFolder(1)		// oldFolder is quoted if necessary
 
 	// First, check that parentFolder exists
 	status = H5GW_ValidateFolder(parentFolder)
 	if ( strlen(status) > 0 )
 		return status
 	endif
-	SetDataFolder $parentFolder
+	SetDataFolder $parentFolder		// ???
 	
 	// Build HDF5 group structure
 	Variable fileID = H5GW__OpenHDF5_RW(newFileName, replace)
@@ -550,14 +577,16 @@ End
 //@-
 
 Function/T H5GW_ValidateFolder(parentFolder)
-	String parentFolder
-	String oldFolder = GetDataFolder(1)
+	String parentFolder	// parentFolder must be quoted if necessary
+	
 	// First, check that parentFolder exists
 	if ( DataFolderExists(parentFolder) )
 		SetDataFolder $parentFolder
 	else
 		return parentFolder + " (Igor folder) not found"
 	endif
+
+	String oldFolder = GetDataFolder(1)		// oldFolder is quoted if necessary
 
 	if (1 != Exists("HDF5___xref"))
 		SetDataFolder $oldFolder
@@ -689,7 +718,7 @@ static Function/T H5GW__WriteHDF5_Data(fileID)
 		igorPath = xref[ii][Igor_col]
 		hdf5Path = xref[ii][HDF5_col]
 		// print DataFolderExists(igorPath), igorPath, " --> ", hdf5Path
-		if ( DataFolderExists(igorPath) )
+		if ( DataFolderExists(PossiblyQuotePath(igorPath)) )
 			// group
 			if ( cmpstr("/", hdf5Path) != 0 )
 				HDF5CreateGroup /Z fileID , hdf5Path, groupID
@@ -702,7 +731,7 @@ static Function/T H5GW__WriteHDF5_Data(fileID)
 			// attributes
 			notes = ""
 			folder_attr_info = H5GW__appendPathDelimiter(igorPath, ":") + "Igor___folder_attributes"
-			Wave folder_attr = $folder_attr_info
+			Wave folder_attr = $PossiblyQuotePath(folder_attr_info)
 			notes = note(folder_attr)
 			length = itemsInList(notes, "\r")
 			String response
@@ -717,7 +746,7 @@ static Function/T H5GW__WriteHDF5_Data(fileID)
 			endif
 		else
 			// dataset
-			Wave theWave = $igorPath
+			Wave theWave = $PossiblyQuotePath(igorPath)
 			HDF5SaveData/IGOR=0/Z theWave, fileID, hdf5Path
 			if (V_Flag != 0)
 				status = H5GW__AppendString(status, "\r",  "problem saving HDF5 dataset: " + hdf5Path)
@@ -751,7 +780,7 @@ End
 static Function H5GW__SetHDF5ObjectAttributes(itemID, igorPath, hdf5Path)
 	Variable itemID
 	String igorPath, hdf5Path
-	Wave theWave = $igorPath
+	Wave theWave = $PossiblyQuotePath(igorPath)
 	String notes = note(theWave), item, key, value
 	Variable jj, length = itemsInList(notes, "\r")
 	notes = note(theWave)
@@ -777,13 +806,13 @@ static Function/T H5GW__SetTextAttributeHDF5(itemID, name, value, hdf5Path)
 	Variable itemID
 	String name, value, hdf5Path
 	String status = ""
-	Make/T/N=(1) H5GW____temp
+	Make/T/N=(1)/Free H5GW____temp
 	H5GW____temp[0] = value
 	HDF5SaveData/Z/A=name   H5GW____temp, itemID, hdf5Path
 	if ( V_Flag != 0)
 		status = "problem saving HDF5 text attribute: " + hdf5Path
 	endif
-	KillWaves  H5GW____temp
+	//KillWaves  H5GW____temp
 	return status
 End
 
@@ -825,9 +854,14 @@ static Function H5GW__make_xref(parentFolder, dataFolderPaths, wavePaths, group_
 	String keySep = "="	// between key and value
 	String listSep = "\r"	// between key,value pairs
 
-	String matchStr = parentFolder + base_name
+	String matchStr = PossiblyQuotePath(parentFolder + base_name)
 	String igorDataFolderPaths = ReplaceString(matchStr, dataFolderPaths, "")
 	String igorWavePaths = ReplaceString(matchStr, wavePaths, "")
+	//remove IGORWaveNote stuff, slows everything done and is more or less useless... 
+	igorDataFolderPaths = GrepList(igorDataFolderPaths, "IGORWaveNote" ,1 )
+	igorWavePaths =  GrepList(igorWavePaths, "IGORWaveNote" ,1 )
+	ds_list =  GrepList(ds_list, "IGORWaveNote" ,1 )
+
 	
 	// Add data folder/group path pairs
 	Variable ii, length
@@ -869,8 +903,8 @@ static Function H5GW__make_xref(parentFolder, dataFolderPaths, wavePaths, group_
 	length = itemsInList(xref, listSep)
 	String file_info
 	sprintf file_info, ":%s:HDF5___xref", base_name
-	Make/O/N=(length,2)/T $file_info
-	Wave/T file_infoT = $file_info
+	Make/O/N=(length,2)/T $PossiblyQuotePath(file_info)
+	Wave/T file_infoT = $PossiblyQuotePath(file_info)
 	String item
 	Variable HDF5_col = 0
 	Variable Igor_col = 1
@@ -973,7 +1007,7 @@ Static Function H5GW__OpenHDF5_RO(fileName)
 		return 0
 	endif
 	Variable fileID = 0
-	HDF5OpenFile/R/P=home/Z fileID as fileName
+	HDF5OpenFile/R/Z fileID as fileName
 	if (V_Flag != 0)
 		return 0
 	endif
@@ -1032,7 +1066,8 @@ Static Function H5GW__HDF5ReadAttributes(fileID, hdf5Path, baseName, dataFolderP
 	#endif
 	
 	// Add Igor___folder_attributes wave containing group attributes to data folders
-	String old_dir = GetDataFolder(1), subdir, group_attr_name
+	String oldFolder = GetDataFolder(1)		// oldFolder is quoted if necessary
+	String subdir, group_attr_name
 	int offset = 0
 	String separator = ";"
 	for (index = 0; index < length; index = index+1)
@@ -1042,12 +1077,12 @@ Static Function H5GW__HDF5ReadAttributes(fileID, hdf5Path, baseName, dataFolderP
 		if ( strlen(attribute_str) > 0 )
 			// store these attributes in the wavenote of a unique wave in the group
 			subdir = ":" + baseName + ReplaceString("/", group_name, ":")
-			SetDataFolder $subdir
+			SetDataFolder $PossiblyQuotePath(subdir)
 			group_attr_name = "Igor___folder_attributes"
 			Make/O/N=0 $group_attr_name
 			Note/K $group_attr_name, attribute_str
 		endif
-		SetDataFolder $old_dir
+		SetDataFolder $oldFolder
 	endfor
 
 	#ifdef DO_HDF5_GATEWAY_TIMING
@@ -1066,7 +1101,7 @@ Static Function H5GW__HDF5ReadAttributes(fileID, hdf5Path, baseName, dataFolderP
 
 	String file_info
 	sprintf file_info, ":%s:HDF5___xref", baseName
-	Wave/T xref = $file_info
+	Wave/T xref = $PossiblyQuotePath(file_info)
 	
 	#ifdef DO_HDF5_GATEWAY_TIMING
 		timerRefNum = StartMSTimer
@@ -1087,7 +1122,8 @@ Static Function H5GW__HDF5ReadAttributes(fileID, hdf5Path, baseName, dataFolderP
 			row = H5GW__findTextWaveIndex(xref, hdf5_path, 0)
 			if (row > -1)
 				igor_path = ":" + baseName + xref[row][1]
-				wave targetWave=$igor_path
+				String qp_igor_path = PossiblyQuotePath(igor_path)
+				wave targetWave=$qp_igor_path
 				Note/K targetWave, attribute_str
 			endif
 		endif
@@ -1161,7 +1197,7 @@ Static Function/T H5GW__HDF5AttributesToString(fileID, hdf5_Object, hdf5_Type, [
 		endif
 		result = result + attr_name + keyValueSep + attr_str
 	endfor
-	KillWaves/Z attr_wave
+	//KillWaves/Z attr_wave
 
 	return result
 End
@@ -1196,13 +1232,32 @@ Static Function/T H5GW__HDF5AttributeDataToString(fileID, hdf5_Object, hdf5_Type
 	String attr_str = "", temp_str
 	Variable index
 	HDF5LoadData/A=attr_name/TYPE=(hdf5_Type)/N=attr_wave/Z/O/Q   fileID, hdf5_Object
+//	if ( V_Flag == 0 )
+//		WAVE w = attr_wave
+//		if (WaveType(w) == 0)				// Text wave?
+//			Wave/T attr_waveT=w
+//			attr_str = attr_waveT[0]
+//		else
+//			Wave attr_waveN=w
+//			attr_str = ""
+//			sprintf attr_str, "%g", attr_waveN[0]		// assume at least one point
+//			for ( index=1; index < numpnts(attr_waveN); index=index+1)
+//				sprintf temp_str, "%g", attr_waveN[index]
+//				attr_str = attr_str + itemDelimiter + temp_str
+//			endfor
+//		endif
+//	endif
+//	KillWaves/Z attr_wave
 	if ( V_Flag == 0 )
-		WAVE w = attr_wave
-		if (WaveType(w) == 0)				// Text wave?
-			Wave/T attr_waveT=w
+		if ( 0 == cmpstr( "attr_wave,", WaveList("attr_wave", ",", "TEXT:1")) )
+			Wave/T attr_waveT=attr_wave
+			//there are cases, when we have list in attributes, qDw, dQl is typical example
 			attr_str = attr_waveT[0]
+			for (index=1; index < numpnts(attr_waveT); index=index+1)
+				attr_str = attr_str + itemDelimiter + attr_waveT[index]
+			endfor
 		else
-			Wave attr_waveN=w
+			Wave attr_waveN=attr_wave
 			attr_str = ""
 			sprintf attr_str, "%g", attr_waveN[0]		// assume at least one point
 			for ( index=1; index < numpnts(attr_waveN); index=index+1)
@@ -1211,7 +1266,7 @@ Static Function/T H5GW__HDF5AttributeDataToString(fileID, hdf5_Object, hdf5_Type
 			endfor
 		endif
 	endif
-	KillWaves/Z attr_wave
+	//KillWaves/Z attr_wave		//takes significant time and does not seem needed... 
 	return attr_str
 End
 
